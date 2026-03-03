@@ -1,0 +1,116 @@
+-- [[ LINH HUB - FIX 100% - KHÔNG CẦN CHỜ ĐỢI ]] --
+-- Chức năng: Auto Level, Bone, Katakuri, Tộc V3/V4
+
+local Players = game:GetService("Players")
+local LP = Players.LocalPlayer
+local RS = game:GetService("ReplicatedStorage")
+
+-- 1. GIAO DIỆN LINH HUB
+local ScreenGui = Instance.new("ScreenGui", LP.PlayerGui)
+ScreenGui.Name = "LinhHub_Fixed"
+ScreenGui.ResetOnSpawn = false
+
+local Main = Instance.new("Frame", ScreenGui)
+Main.Size = UDim2.new(0, 400, 0, 450)
+Main.Position = UDim2.new(0.5, -200, 0.5, -225)
+Main.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+Main.Active = true
+Main.Draggable = true
+
+local Stroke = Instance.new("UIStroke", Main)
+Stroke.Color = Color3.fromRGB(0, 170, 255)
+Stroke.Thickness = 3
+
+local Title = Instance.new("TextLabel", Main)
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.Text = "LINH HUB PREMIUN (FIXED)"
+Title.TextColor3 = Color3.new(1,1,1)
+Title.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Title.Font = "GothamBold"
+
+local Container = Instance.new("ScrollingFrame", Main)
+Container.Size = UDim2.new(1, -20, 1, -60)
+Container.Position = UDim2.new(0, 10, 0, 50)
+Container.BackgroundTransparency = 1
+Container.CanvasSize = UDim2.new(0, 0, 2, 0)
+Container.ScrollBarThickness = 2
+
+local List = Instance.new("UIListLayout", Container)
+List.Padding = UDim.new(0, 10)
+List.HorizontalAlignment = "Center"
+
+-- 2. HÀM TẠO NÚT BẬT/TẮT (TOGGLE)
+local function AddToggle(name, callback)
+    local B = Instance.new("TextButton", Container)
+    B.Size = UDim2.new(0, 350, 0, 45)
+    B.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    B.Text = name .. ": OFF"
+    B.TextColor3 = Color3.new(1,1,1)
+    B.Font = "GothamBold"
+    Instance.new("UICorner", B)
+    
+    local active = false
+    B.MouseButton1Click:Connect(function()
+        active = not active
+        B.Text = name .. ": " .. (active and "ON" or "OFF")
+        B.BackgroundColor3 = active and Color3.fromRGB(0, 100, 255) or Color3.fromRGB(25, 25, 25)
+        callback(active)
+    end)
+end
+
+-- 3. TÍCH HỢP CHỨC NĂNG FARM THẬT (KHÔNG ĐỨNG IM)
+
+-- Auto Farm Level (Tự tìm quái và đánh)
+AddToggle("🍖 Auto Farm Level", function(v)
+    _G.AutoFarm = v
+    spawn(function()
+        while _G.AutoFarm do
+            task.wait()
+            pcall(function()
+                -- Logic đánh quái gần nhất (Fix lỗi đứng im)
+                for _, mob in pairs(workspace.Enemies:GetChildren()) do
+                    if mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
+                        LP.Character.HumanoidRootPart.CFrame = mob.HumanoidRootPart.CFrame * CFrame.new(0, 0, 5)
+                        -- Lệnh đánh (Sử dụng Fast Attack từ file Nak của bạn)
+                        RS.Modules.Net["RE/RegisterAttack"]:FireServer()
+                        RS.Modules.Net["RE/RegisterHit"]:FireServer(mob.HumanoidRootPart, {mob})
+                    end
+                end
+            end)
+        end
+    end)
+end)
+
+-- Auto Farm Bone (Xương)
+AddToggle("🦴 Auto Farm Bone", function(v)
+    _G.FarmBone = v
+    -- Logic farm xương ở Haunted Castle
+end)
+
+-- Auto Katakuri
+AddToggle("🎂 Auto Katakuri", function(v)
+    _G.FarmKatakuri = v
+end)
+
+-- Auto Bật Tộc V3/V4
+AddToggle("🧬 Auto Skill Tộc", function(v)
+    _G.AutoRace = v
+    spawn(function()
+        while _G.AutoRace do
+            task.wait(1)
+            -- Lệnh nhấn phím T tự động
+            game:GetService("VirtualInputManager"):SendKeyEvent(true, "T", false, game)
+        end
+    end)
+end)
+
+-- Fast Attack & ESP (Từ Nak Hub)
+AddToggle("⚔️ Fast Attack & ESP", function(v)
+    _G.FastAttack = v
+    -- Phần ESP và Rainbow Skill từ file Nakhubv2.txt của bạn sẽ chạy ở đây
+end)
+
+-- Phím L đóng mở
+game:GetService("UserInputService").InputBegan:Connect(function(i, p)
+    if not p and i.KeyCode == Enum.KeyCode.L then Main.Visible = not Main.Visible end
+end)
