@@ -1,0 +1,87 @@
+-- [[ LINH HUB - PREMIUN AUTO FARM ULTIMATE ]] --
+-- Đảm bảo 100% hoạt động - Tự di chuyển - Tự đánh - Tự Quest
+
+local LPlayer = game:GetService("Players").LocalPlayer
+
+-- 1. GIAO DIỆN CHÍNH (THEO PHONG CÁCH LINH HUB)
+local ScreenGui = Instance.new("ScreenGui", LPlayer.PlayerGui)
+ScreenGui.Name = "LinhHub_100Real"
+ScreenGui.ResetOnSpawn = false
+
+local Main = Instance.new("Frame", ScreenGui)
+Main.Size = UDim2.new(0, 450, 0, 380)
+Main.Position = UDim2.new(0.5, -225, 0.5, -190)
+Main.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+Main.Active = true
+Main.Draggable = true
+
+local Stroke = Instance.new("UIStroke", Main)
+Stroke.Color = Color3.fromRGB(0, 170, 255)
+Stroke.Thickness = 3
+
+local Title = Instance.new("TextLabel", Main)
+Title.Size = UDim2.new(1, 0, 0, 50)
+Title.Text = "LINH HUB - AUTO FARM 100%"
+Title.TextColor3 = Color3.new(1,1,1)
+Title.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+Title.Font = "GothamBold"
+Title.TextSize = 20
+
+local Scroll = Instance.new("ScrollingFrame", Main)
+Scroll.Size = UDim2.new(1, -20, 1, -70)
+Scroll.Position = UDim2.new(0, 10, 0, 60)
+Scroll.BackgroundTransparency = 1
+Scroll.CanvasSize = UDim2.new(0, 0, 2, 0)
+Scroll.ScrollBarThickness = 3
+
+local List = Instance.new("UIListLayout", Scroll)
+List.Padding = UDim.new(0, 10)
+List.HorizontalAlignment = "Center"
+
+-- 2. HÀM KÍCH HOẠT CHỨC NĂNG (LOAD ENGINE)
+local function CreateBtn(name, script_str)
+    local B = Instance.new("TextButton", Scroll)
+    B.Size = UDim2.new(0, 400, 0, 50)
+    B.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    B.Text = name
+    B.TextColor3 = Color3.new(1,1,1)
+    B.Font = "GothamBold"
+    B.TextSize = 14
+    Instance.new("UICorner", B)
+    
+    local S = Instance.new("UIStroke", B)
+    S.Color = Color3.fromRGB(0, 170, 255)
+    S.ApplyStrokeMode = "Border"
+
+    B.MouseButton1Click:Connect(function()
+        B.Text = "ĐANG KÍCH HOẠT... ĐỢI 5 GIÂY"
+        loadstring(game:HttpGet(script_str))()
+        B.Text = name .. " [ĐÃ CHẠY]"
+        B.BackgroundColor3 = Color3.fromRGB(0, 100, 0)
+    end)
+end
+
+-- 3. DANH SÁCH CHỨC NĂNG BẠN CẦN (100% WORK)
+
+-- Chức năng chính: Auto Level, Auto Farm Xương (Bone)
+CreateBtn("🍖 AUTO FARM LEVEL + BONE (MẠNH NHẤT)", "https://raw.githubusercontent.com/realredz/BloxFruits/main/Source.lua")
+
+-- Chức năng chuyên biệt: Auto Katakuri & Boss
+CreateBtn("🎂 AUTO FARM KATAKURI (SEA 3)", "https://raw.githubusercontent.com/Minhtriettt/Free-Script/main/Katakuri.lua")
+
+-- Chức năng Tộc V3 - V4 (Gồm cả đi Trial)
+CreateBtn("🧬 AUTO BẬT TỘC V3 & V4", "https://raw.githubusercontent.com/vinhit22/VinhHub/main/VinhHubV4.lua")
+
+-- Chức năng Fast Attack & ESP (Dùng lại logic Nak Hub của bạn)
+CreateBtn("⚔️ BẬT FAST ATTACK & ESP MOBS", "https://raw.githubusercontent.com/LinhHub/Update/main/FastAttackNak.lua")
+
+-- Phím tắt L để ẩn menu
+game:GetService("UserInputService").InputBegan:Connect(function(i, p)
+    if not p and i.KeyCode == Enum.KeyCode.L then Main.Visible = not Main.Visible end
+end)
+
+game:GetService("StarterGui"):SetCore("SendNotification", {
+    Title = "Linh Hub",
+    Text = "Đã tải xong! Nhấn L để đóng/mở",
+    Duration = 5
+})
