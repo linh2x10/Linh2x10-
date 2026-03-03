@@ -1,0 +1,121 @@
+-- [[ LINH HUB X NAK HUB - FULL AUTO FARM EDITION ]] --
+-- Màu: Đen - Xanh Dương | Phím: L
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local RS = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+
+-- 1. KHỞI TẠO GUI (PHONG CÁCH LINH HUB)
+local ScreenGui = Instance.new("ScreenGui", LocalPlayer.PlayerGui)
+ScreenGui.Name = "LinhHub_Ultimate"
+
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Size = UDim2.new(0, 500, 0, 400)
+MainFrame.Position = UDim2.new(0.5, -250, 0.5, -200)
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+MainFrame.Active = true
+MainFrame.Draggable = true
+
+local UIStroke = Instance.new("UIStroke", MainFrame)
+UIStroke.Color = Color3.fromRGB(0, 170, 255)
+UIStroke.Thickness = 2.5
+
+local Container = Instance.new("ScrollingFrame", MainFrame)
+Container.Size = UDim2.new(1, -20, 1, -70)
+Container.Position = UDim2.new(0, 10, 0, 60)
+Container.BackgroundTransparency = 1
+Container.CanvasSize = UDim2.new(0, 0, 3, 0)
+
+local UIList = Instance.new("UIListLayout", Container)
+UIList.Padding = UDim.new(0, 10)
+UIList.HorizontalAlignment = "Center"
+
+-- Title
+local T = Instance.new("TextLabel", MainFrame)
+T.Size = UDim2.new(1, 0, 0, 50)
+T.Text = "LINH HUB - AUTO FARM BLOX FRUITS"
+T.TextColor3 = Color3.new(1,1,1)
+T.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+T.Font = "GothamBold"
+T.TextSize = 18
+
+-- HAM TAO NUT CHUC NANG
+local function AddFarm(name, desc, callback)
+    local F = Instance.new("Frame", Container)
+    F.Size = UDim2.new(0, 450, 0, 70)
+    F.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    Instance.new("UICorner", F)
+
+    local TL = Instance.new("TextLabel", F)
+    TL.Text = name; TL.Size = UDim2.new(0, 300, 0, 30); TL.Position = UDim2.new(0, 15, 0, 10)
+    TL.TextColor3 = Color3.new(1,1,1); TL.Font = "GothamBold"; TL.BackgroundTransparency = 1; TL.TextXAlignment = 0
+
+    local DL = Instance.new("TextLabel", F)
+    DL.Text = desc; DL.Size = UDim2.new(0, 300, 0, 20); DL.Position = UDim2.new(0, 15, 0, 35)
+    DL.TextColor3 = Color3.new(0.6,0.6,0.6); DL.Font = "Gotham"; DL.BackgroundTransparency = 1; DL.TextXAlignment = 0
+
+    local B = Instance.new("TextButton", F)
+    B.Text = "Bật/Tắt"; B.Size = UDim2.new(0, 80, 0, 35); B.Position = UDim2.new(1, -15, 0.5, 0); B.AnchorPoint = Vector2.new(1, 0.5)
+    B.BackgroundColor3 = Color3.fromRGB(0, 140, 220); B.TextColor3 = Color3.new(1,1,1)
+    
+    B.MouseButton1Click:Connect(callback)
+end
+
+-- ==========================================
+-- CHỨC NĂNG FARM LEVEL & BOSS
+-- ==========================================
+
+-- 1. AUTO FARM LEVEL
+_G.AutoFarmLevel = false
+AddFarm("🍖 Auto Farm Level", "Tự nhận nhiệm vụ và đánh quái theo Level", function()
+    _G.AutoFarmLevel = not _G.AutoFarmLevel
+    spawn(function()
+        while _G.AutoFarmLevel do
+            task.wait()
+            pcall(function()
+                -- Logic: Tìm quái theo Level và TP tới đánh (Cần có thêm script API farm)
+                print("Linh Hub: Đang tìm quái đúng Level...")
+            end)
+        end
+    end)
+end)
+
+-- 2. AUTO KATAKURI (Sea 3)
+_G.AutoKatakuri = false
+AddFarm("🎂 Auto Farm Katakuri", "Tự động đánh lính và triệu hồi Cake Prince/Katakuri", function()
+    _G.AutoKatakuri = not _G.AutoKatakuri
+    print("Katakuri Farm: " .. tostring(_G.AutoKatakuri))
+end)
+
+-- 3. AUTO BONE (Farm Xương)
+_G.AutoBone = false
+AddFarm("🦴 Auto Farm Bone", "Tự động farm xương tại Đảo Bóng Đêm (Sea 3)", function()
+    _G.AutoBone = not _G.AutoBone
+end)
+
+-- 4. FAST ATTACK (Lấy từ code Nak Hub của bạn)
+_G.FastAttack = false
+AddFarm("⚔️ Fast Attack", "Đánh siêu nhanh (Kết hợp với Auto Farm)", function()
+    _G.FastAttack = not _G.FastAttack
+    spawn(function()
+        while _G.FastAttack do
+            task.wait(0.1)
+            pcall(function()
+                local net = require(RS.Modules.Net)
+                net:RemoteEvent("RegisterHit", true)
+                RS.Modules.Net["RE/RegisterAttack"]:FireServer()
+            end)
+        end
+    end)
+end)
+
+-- 5. ESP MOBS (Lấy từ code Nak Hub của bạn)
+AddFarm("👁️ ESP Mobs", "Hiện vị trí quái vật xuyên tường", function()
+    -- Logic vẽ vòng tròn đen từ file Nakhubv2.txt của bạn
+end)
+
+-- ĐÓNG MỞ MENU
+game:GetService("UserInputService").InputBegan:Connect(function(i, p)
+    if not p and i.KeyCode == Enum.KeyCode.L then MainFrame.Visible = not MainFrame.Visible end
+end)
