@@ -1,0 +1,78 @@
+-- [[ LINH HUB - SIÊU CẤP BOAT SPAMMER V2 ]] --
+-- Phím ẩn/hiện: L
+
+local LP = game:GetService("Players").LocalPlayer
+local RS = game:GetService("ReplicatedStorage")
+local TeleportService = game:GetService("TeleportService")
+
+-- 1. GIAO DIỆN
+local ScreenGui = Instance.new("ScreenGui", LP.PlayerGui)
+ScreenGui.Name = "LinhHub_Spam_Fixed"
+
+local Main = Instance.new("Frame", ScreenGui)
+Main.Size = UDim2.new(0, 320, 0, 250)
+Main.Position = UDim2.new(0.5, -160, 0.5, -125)
+Main.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+Main.Active = true
+Main.Draggable = true
+Instance.new("UIStroke", Main).Color = Color3.fromRGB(0, 170, 255)
+
+local Title = Instance.new("TextLabel", Main)
+Title.Size = UDim2.new(1, 0, 0, 45)
+Title.Text = "LINH HUB - AUTO BUY BOAT"
+Title.TextColor3 = Color3.new(1,1,1)
+Title.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+Title.Font = "GothamBold"
+
+-- 2. NÚT KÍCH HOẠT
+local Btn = Instance.new("TextButton", Main)
+Btn.Size = UDim2.new(0, 280, 0, 60)
+Btn.Position = UDim2.new(0.5, -140, 0.5, -20)
+Btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Btn.Text = "BẮT ĐẦU SPAM THUYỀN: OFF"
+Btn.TextColor3 = Color3.new(1,1,1)
+Btn.Font = "GothamBold"
+Instance.new("UICorner", Btn)
+
+local active = false
+Btn.MouseButton1Click:Connect(function()
+    active = not active
+    Btn.Text = active and "ĐANG PHÁ SERVER... ON" or "BẮT ĐẦU SPAM THUYỀN: OFF"
+    Btn.BackgroundColor3 = active and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(30, 30, 30)
+    
+    task.spawn(function()
+        while active do
+            pcall(function()
+                -- Lệnh này gửi thẳng đến Server yêu cầu mua thuyền Dinghy (Free)
+                -- "Dinghy" là tên thuyền gỗ nhỏ nhất
+                RS.Remotes.CommF_:InvokeServer("BuyBoat", "Dinghy")
+            end)
+            task.wait(0.05) -- Tốc độ mua cực nhanh
+        end
+    end)
+end)
+
+-- 3. HÀM TỰ BAY ĐẾN BẾN THUYỀN (Để Remote hoạt động)
+local TpBtn = Instance.new("TextButton", Main)
+TpBtn.Size = UDim2.new(0, 280, 0, 40)
+TpBtn.Position = UDim2.new(0.5, -140, 1, -55)
+TpBtn.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
+TpBtn.Text = "BAY ĐẾN BẾN THUYỀN"
+TpBtn.TextColor3 = Color3.new(1,1,1)
+TpBtn.Font = "GothamBold"
+Instance.new("UICorner", TpBtn)
+
+TpBtn.MouseButton1Click:Connect(function()
+    -- Tìm vị trí NPC Boat Dealer gần nhất và bay tới đó
+    for _,v in pairs(workspace.NPCs:GetChildren()) do
+        if v.Name:find("Boat Dealer") then
+            LP.Character.HumanoidRootPart.CFrame = v.PrimaryPart.CFrame * CFrame.new(0, 0, 5)
+            break
+        end
+    end
+end)
+
+-- Phím L đóng mở
+game:GetService("UserInputService").InputBegan:Connect(function(i, p)
+    if not p and i.KeyCode == Enum.KeyCode.L then Main.Visible = not Main.Visible end
+end)
