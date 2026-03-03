@@ -1,0 +1,92 @@
+-- [[ LINH HUB - BOAT SPAMMER (MẤT TIỀN) ]] --
+-- Cảnh báo: Bật cái này sẽ làm bạn hết sạch tiền rất nhanh!
+
+local LP = game:GetService("Players").LocalPlayer
+local RS = game:GetService("ReplicatedStorage")
+
+-- 1. GIAO DIỆN
+local ScreenGui = Instance.new("ScreenGui", LP.PlayerGui)
+ScreenGui.Name = "LinhHub_Boat_Rich"
+
+local Main = Instance.new("Frame", ScreenGui)
+Main.Size = UDim2.new(0, 350, 0, 320)
+Main.Position = UDim2.new(0.5, -175, 0.5, -160)
+Main.BackgroundColor3 = Color3.fromRGB(15, 5, 5) -- Màu đỏ tối cảnh báo
+Main.Active = true
+Main.Draggable = true
+Instance.new("UIStroke", Main).Color = Color3.fromRGB(255, 0, 0) -- Viền đỏ
+Instance.new("UICorner", Main)
+
+local Title = Instance.new("TextLabel", Main)
+Title.Size = UDim2.new(1, 0, 0, 45)
+Title.Text = "LINH HUB - SPAM MUA THUYỀN XỊN"
+Title.TextColor3 = Color3.new(1,1,1)
+Title.BackgroundColor3 = Color3.fromRGB(40, 0, 0)
+Title.Font = "GothamBold"
+
+-- BIẾN LƯU LOẠI THUYỀN
+local SelectedBoat = "Sloop" -- Mặc định là thuyền Sloop (300$)
+
+-- 2. MENU CHỌN THUYỀN
+local Scroll = Instance.new("ScrollingFrame", Main)
+Scroll.Size = UDim2.new(1, -20, 1, -120)
+Scroll.Position = UDim2.new(0, 10, 0, 50)
+Scroll.BackgroundTransparency = 1
+Scroll.CanvasSize = UDim2.new(0, 0, 2, 0)
+local List = Instance.new("UIListLayout", Scroll)
+List.Padding = UDim.new(0, 5)
+
+local boats = {
+    {name = "Sloop (300$)", id = "Sloop"},
+    {name = "Brigantine (2,000$)", id = "Brigantine"},
+    {name = "Flower Ship (5,000$)", id = "Flower Ship"},
+    {name = "Swan Ship (20,000$)", id = "Swan Ship"},
+    {name = "Ace (5,000$ - Sea 2/3)", id = "Ace"}
+}
+
+for _, v in pairs(boats) do
+    local b = Instance.new("TextButton", Scroll)
+    b.Size = UDim2.new(1, 0, 0, 35)
+    b.Text = v.name
+    b.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    b.TextColor3 = Color3.new(1,1,1)
+    b.Font = "Gotham"
+    Instance.new("UICorner", b)
+    
+    b.MouseButton1Click:Connect(function()
+        SelectedBoat = v.id
+        game:GetService("StarterGui"):SetCore("SendNotification", {Title = "Linh Hub", Text = "Đã chọn: "..v.name, Duration = 2})
+    end)
+end
+
+-- 3. NÚT KÍCH HOẠT SPAM
+local StartBtn = Instance.new("TextButton", Main)
+StartBtn.Size = UDim2.new(0, 300, 0, 50)
+StartBtn.Position = UDim2.new(0.5, -150, 1, -60)
+StartBtn.BackgroundColor3 = Color3.fromRGB(60, 0, 0)
+StartBtn.Text = "BẬT SPAM MUA: OFF"
+StartBtn.TextColor3 = Color3.new(1,1,1)
+StartBtn.Font = "GothamBold"
+Instance.new("UICorner", StartBtn)
+
+local active = false
+StartBtn.MouseButton1Click:Connect(function()
+    active = not active
+    StartBtn.Text = active and "ĐANG ĐỐT TIỀN: ON" or "BẬT SPAM MUA: OFF"
+    StartBtn.BackgroundColor3 = active and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(60, 0, 0)
+    
+    task.spawn(function()
+        while active do
+            pcall(function()
+                -- Gửi lệnh mua loại thuyền đã chọn
+                RS.Remotes.CommF_:InvokeServer("BuyBoat", SelectedBoat)
+            end)
+            task.wait(0.05) -- Tốc độ cực nhanh
+        end
+    end)
+end)
+
+-- Phím L đóng mở
+game:GetService("UserInputService").InputBegan:Connect(function(i, p)
+    if not p and i.KeyCode == Enum.KeyCode.L then Main.Visible = not Main.Visible end
+end)
