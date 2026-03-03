@@ -1,0 +1,370 @@
+-- [[ INTEGRATED LINH HUB UI + NAK HUB V2 LOGIC ]] --
+-- Theme: Modern Dark/Blue Glow (from reference image)
+-- Functions: Extracted and optimized from Nakhubv2.txt
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
+local TextService = game:GetService("TextService")
+
+-- Ensure the script runs only on the client
+if not game:IsLoaded() then game.Loaded:Wait() end
+
+-- ==========================================
+-- 1. TẠO GIAO DIỆN (THEO HÌNH ẢNH LINH HUB)
+-- ==========================================
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "LinhHub_Integrated"
+ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+ScreenGui.ResetOnSpawn = false
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 500, 0, 380) -- Updated size for better layout
+MainFrame.Position = UDim2.new(0.5, -250, 0.5, -190)
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15) -- Very dark grey/black
+MainFrame.BorderSizePixel = 0
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.Parent = ScreenGui
+
+-- Blue Glow Borders (using UIStroke and a dummy frame for a glow effect)
+local UIStroke = Instance.new("UIStroke")
+UIStroke.Color = Color3.fromRGB(0, 170, 255) -- Vivid Cyan/Blue
+UIStroke.Thickness = 3
+UIStroke.Transparency = 0.2
+UIStroke.Parent = MainFrame
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 8)
+UICorner.Parent = MainFrame
+
+-- --- TIÊU ĐỀ (HEADER) ---
+local Header = Instance.new("Frame")
+Header.Name = "Header"
+Header.Size = UDim2.new(1, 0, 0, 50)
+Header.BackgroundTransparency = 1
+Header.Parent = MainFrame
+
+-- Logo LH (from reference image)
+local LogoText = Instance.new("TextLabel")
+LogoText.Size = UDim2.new(0, 60, 1, 0)
+LogoText.Position = UDim2.new(0, 15, 0, 0)
+LogoText.BackgroundTransparency = 1
+LogoText.Text = "LH"
+LogoText.TextColor3 = Color3.fromRGB(0, 170, 255) -- Vivid Cyan/Blue
+LogoText.Font = Enum.Font.GothamBlack
+LogoText.TextSize = 26
+LogoText.TextXAlignment = Enum.TextXAlignment.Left
+LogoText.Parent = Header
+
+-- Title "LINH HUB" (from reference image)
+local TitleText = Instance.new("TextLabel")
+TitleText.Size = UDim2.new(0, 200, 1, 0)
+TitleText.Position = UDim2.new(0, 65, 0, 0)
+TitleText.BackgroundTransparency = 1
+TitleText.Text = "LINH HUB"
+TitleText.TextColor3 = Color3.fromRGB(255, 255, 255)
+TitleText.Font = Enum.Font.GothamBold
+TitleText.TextSize = 22
+TitleText.TextXAlignment = Enum.TextXAlignment.Left
+TitleText.Parent = Header
+
+-- Search Bar (Placeholder from image)
+local SearchBar = Instance.new("TextBox")
+SearchBar.Name = "SearchBar"
+SearchBar.Size = UDim2.new(1, -280, 0, 30)
+SearchBar.Position = UDim2.new(1, -15, 0.5, -15)
+SearchBar.AnchorPoint = Vector2.new(1, 0)
+SearchBar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+SearchBar.Text = "Search Scripts..."
+SearchBar.TextColor3 = Color3.fromRGB(150, 150, 150)
+SearchBar.Font = Enum.Font.Gotham
+SearchBar.TextSize = 14
+SearchBar.ClipsDescendants = true
+SearchBar.Parent = Header
+
+local SearchCorner = Instance.new("UICorner")
+SearchCorner.CornerRadius = UDim.new(0, 6)
+SearchCorner.Parent = SearchBar
+
+-- ==========================================
+-- 2. TẠO NAVIGATION SIDEBAR VÀ TAB SYSTEM
+-- ==========================================
+local Sidebar = Instance.new("Frame")
+Sidebar.Name = "Sidebar"
+Sidebar.Size = UDim2.new(0, 150, 1, -50)
+Sidebar.Position = UDim2.new(0, 0, 0, 50)
+Sidebar.BackgroundTransparency = 1
+Sidebar.Parent = MainFrame
+
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.Padding = UDim.new(0, 5)
+UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+UIListLayout.Parent = Sidebar
+
+-- --- Tab Buttons ---
+local tabs = {}
+local activeTab = nil
+
+local function createTab(name)
+    local TabButton = Instance.new("TextButton")
+    TabButton.Name = name .. "Tab"
+    TabButton.Size = UDim2.new(0, 130, 0, 40)
+    TabButton.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    TabButton.Text = "  " .. name -- Simple padding
+    TabButton.TextColor3 = Color3.fromRGB(200, 200, 200)
+    TabButton.Font = Enum.Font.GothamSemibold
+    TabButton.TextSize = 14
+    TabButton.TextXAlignment = Enum.TextXAlignment.Left
+    TabButton.Parent = Sidebar
+
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 6)
+    Corner.Parent = TabButton
+
+    local Stroke = Instance.new("UIStroke")
+    Stroke.Color = Color3.fromRGB(0, 170, 255)
+    Stroke.Thickness = 0 -- Off by default
+    Stroke.Parent = TabButton
+
+    -- Placeholder for the content container
+    local ContentContainer = Instance.new("ScrollingFrame")
+    ContentContainer.Name = name .. "Content"
+    ContentContainer.Size = UDim2.new(1, -160, 1, -60)
+    ContentContainer.Position = UDim2.new(0, 160, 0, 60)
+    ContentContainer.BackgroundTransparency = 1
+    ContentContainer.CanvasSize = UDim2.new(0, 0, 0, 0) -- Automatically calculated
+    ContentContainer.ScrollBarThickness = 3
+    ContentContainer.ScrollBarImageColor3 = Color3.fromRGB(0, 170, 255)
+    ContentContainer.Visible = false
+    ContentContainer.Parent = MainFrame
+
+    local ContentLayout = Instance.new("UIListLayout")
+    ContentLayout.Padding = UDim.new(0, 10)
+    ContentLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    ContentLayout.Parent = ContentContainer
+
+    -- Handle Content Auto-Scrolling
+    ContentLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        ContentContainer.CanvasSize = UDim2.new(0, 0, 0, ContentLayout.AbsoluteContentSize.Y)
+    end)
+
+    tabs[name] = {Button = TabButton, Container = ContentContainer, Stroke = Stroke}
+
+    TabButton.MouseButton1Click:Connect(function()
+        if activeTab == name then return end
+
+        -- Hide previous tab
+        if activeTab then
+            tabs[activeTab].Container.Visible = false
+            tabs[activeTab].Stroke.Thickness = 0
+            tabs[activeTab].Button.TextColor3 = Color3.fromRGB(200, 200, 200)
+            tabs[activeTab].Button.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+        end
+
+        -- Show new tab
+        ContentContainer.Visible = true
+        Stroke.Thickness = 1.5 -- Cyan border for active tab
+        TabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+        TabButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+        activeTab = name
+    end)
+end
+
+-- Create tabs from the image (Home, Scripts, Hubs, Executor, Settings, Info)
+local tabNames = {"Home", "Scripts", "Hubs", "Executor", "Settings", "Info"}
+for _, name in pairs(tabNames) do
+    createTab(name)
+end
+
+-- Set default active tab (Scripts, as in the image)
+tabs["Scripts"].Button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+tabs["Scripts"].Stroke.Thickness = 1.5
+tabs["Scripts"].Container.Visible = true
+tabs["Scripts"].Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+activeTab = "Scripts"
+
+-- ==========================================
+-- 3. TÍCH HỢP CHỨC NĂNG TỪ NAKHUBV2
+-- ==========================================
+local scriptTabContent = tabs["Scripts"].Container
+
+-- --- Helper Function to Create Function Buttons (like reference image) ---
+local function createFunctionButton(title, description, callback)
+    local BtnFrame = Instance.new("Frame")
+    BtnFrame.Size = UDim2.new(0, 320, 0, 70)
+    BtnFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    BtnFrame.BorderSizePixel = 0
+    BtnFrame.Parent = scriptTabContent
+
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 8)
+    Corner.Parent = BtnFrame
+
+    -- Title
+    local Title = Instance.new("TextLabel")
+    Title.Size = UDim2.new(0, 220, 0, 25)
+    Title.Position = UDim2.new(0, 12, 0, 10)
+    Title.BackgroundTransparency = 1
+    Title.Text = title
+    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Title.Font = Enum.Font.GothamSemibold
+    Title.TextSize = 16
+    Title.TextXAlignment = Enum.TextXAlignment.Left
+    Title.Parent = BtnFrame
+
+    -- Description
+    local Desc = Instance.new("TextLabel")
+    Desc.Size = UDim2.new(0, 220, 0, 20)
+    Desc.Position = UDim2.new(0, 12, 0, 35)
+    Desc.BackgroundTransparency = 1
+    Desc.Text = description
+    Desc.TextColor3 = Color3.fromRGB(180, 180, 180)
+    Desc.Font = Enum.Font.Gotham
+    Desc.TextSize = 12
+    Desc.TextXAlignment = Enum.TextXAlignment.Left
+    Desc.Parent = BtnFrame
+
+    -- Load Button
+    local LoadBtn = Instance.new("TextButton")
+    LoadBtn.Size = UDim2.new(0, 80, 0, 35)
+    LoadBtn.Position = UDim2.new(1, -12, 0.5, 0)
+    LoadBtn.AnchorPoint = Vector2.new(1, 0.5)
+    LoadBtn.BackgroundColor3 = Color3.fromRGB(0, 140, 220) -- Darker Blue for button
+    LoadBtn.Text = "Load"
+    LoadBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    LoadBtn.Font = Enum.Font.GothamBold
+    LoadBtn.TextSize = 14
+    LoadBtn.Parent = BtnFrame
+
+    local LoadCorner = Instance.new("UICorner")
+    LoadCorner.CornerRadius = UDim.new(0, 6)
+    LoadCorner.Parent = LoadBtn
+
+    -- Callback execution
+    LoadBtn.MouseButton1Click:Connect(callback)
+end
+
+-- ==========================================
+-- ĐỔ CHỨC NĂNG TỪ NAKHUBV2 VÀO ĐÂY
+-- ==========================================
+
+-- A. FUNCTION: FAST ATTACK (COMBAT)
+-- Extracted logic from Nakhubv2.txt lines 21-28
+createFunctionButton("⚔️ Fast Attack", "Super fast clicks (Combat, PVP)", function()
+    game:GetService("StarterGui"):SetCore("SendNotification", {Title = "Linh Hub", Text = "Kích hoạt Fast Attack!", Duration = 3})
+    
+    local net = require(game:GetService("ReplicatedStorage").Modules.Net)
+    net:RemoteEvent("RegisterHit", true)
+    
+    RunService.RenderStepped:Connect(function()
+        game:GetService("ReplicatedStorage").Modules.Net["RE/RegisterAttack"]:FireServer()
+    end)
+end)
+
+-- B. FUNCTION: ESP QUÁI (VISUALS)
+-- Extracted logic from Nakhubv2.txt lines 30-49 (Black Circle ESP)
+_G.MobESPVisible = false
+createFunctionButton("👁️ Mob ESP (Circles)", "Render black circle ESP on mobs (Visuals)", function()
+    _G.MobESPVisible = not _G.MobESPVisible
+    game:GetService("StarterGui"):SetCore("SendNotification", {Title = "Linh Hub", Text = "Toggle ESP: " .. tostring(_G.MobESPVisible), Duration = 3})
+    
+    local circles = {}
+    local function createCircle()
+        local circle = Drawing.new("Circle")
+        circle.Color = Color3.fromRGB(0, 0, 0) -- Pure Black per NakHub
+        circle.Thickness = 2
+        circle.Radius = 1.2
+        circle.Visible = false
+        return circle
+    end
+
+    RunService.RenderStepped:Connect(function()
+        if not _G.MobESPVisible then
+            for _, circle in pairs(circles) do circle.Visible = false end
+            return
+        end
+
+        for _, v in pairs(workspace.Enemies:GetChildren()) do
+            if v:FindFirstChild("HumanoidRootPart") then
+                local pos, onScreen = Camera:WorldToViewportPoint(v.HumanoidRootPart.Position)
+                if onScreen then
+                    local circle = circles[v] or createCircle()
+                    circles[v] = circle
+                    circle.Position = Vector2.new(pos.X, pos.Y)
+                    circle.Visible = true
+                elseif circles[v] then
+                    circles[v].Visible = false
+                end
+            end
+        end
+    end)
+end)
+
+-- C. FUNCTION: FPS RAINBOW COUNTER (VISUALS/MISC)
+-- Extracted logic from Nakhubv2.txt lines 51-64
+local fpsCounterOn = false
+createFunctionButton("📊 FPS Counter (Rainbow)", "Display FPS with shifting colors", function()
+    if fpsCounterOn then return end
+    fpsCounterOn = true
+    game:GetService("StarterGui"):SetCore("SendNotification", {Title = "Linh Hub", Text = "Kích hoạt Rainbow FPS Counter", Duration = 3})
+
+    local label = Instance.new("TextLabel", ScreenGui)
+    label.Size = UDim2.new(0, 100, 0, 30)
+    label.Position = UDim2.new(0, 10, 0, 10)
+    label.BackgroundTransparency = 1
+    label.TextColor3 = Color3.new(1,1,1)
+    label.TextSize = 20
+    
+    local frameCount = 0
+    local lastUpdate = tick()
+    
+    spawn(function()
+        while fpsCounterOn do
+            frameCount = frameCount + 1
+            if tick() - lastUpdate >= 1 then
+                label.Text = "FPS: " .. math.floor(frameCount / (tick() - lastUpdate))
+                frameCount = 0
+                lastUpdate = tick()
+            end
+            -- Đổi màu rainbow
+            label.TextColor3 = Color3.fromHSV(tick() % 5 / 5, 1, 1)
+            task.wait()
+        end
+    end)
+end)
+
+-- D. FUNCTION: SETTEAM PIRATES (WORLD/LOCATIONS)
+-- Extracted logic from Nakhubv2.txt lines 13-16
+createFunctionButton("🏴‍☠️ Set Team: Pirates", "Instantly join the Pirates team", function()
+    local args = {
+        [1] = "SetTeam",
+        [2] = "Pirates"
+    }
+    
+    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer(unpack(args))
+    game:GetService("StarterGui"):SetCore("SendNotification", {Title = "Linh Hub", Text = "Đã vào Team Pirates!", Duration = 3})
+end)
+
+-- ==========================================
+-- 4. HỆ THỐNG PHỤ TRỢ (TOGGLE & NOTIFY)
+-- ==========================================
+
+-- Nút đóng/mở nhanh bằng phím (ví dụ phím L)
+UserInputService.InputBegan:Connect(function(input, processed)
+    if not processed and input.KeyCode == Enum.KeyCode.L then
+        MainFrame.Visible = not MainFrame.Visible
+    end
+end)
+
+-- Thông báo chào mừng (Đã thay thế icon bằng Linh Hub)
+game:GetService("StarterGui"):SetCore("SendNotification", {
+    Title = "Linh Hub x Nak V2",
+    Text = "Nhấn 'L' để đóng/mở menu.",
+    Icon = "rbxassetid://100306458933414", -- Linh Hub ID
+    Duration = 5
+})
