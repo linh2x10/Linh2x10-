@@ -1,0 +1,116 @@
+-- [[ LINH HUB x REDZ VIP - FIX 100% CHỨC NĂNG ]] --
+
+local LPlayer = game:GetService("Players").LocalPlayer
+
+-- 1. KÍCH HOẠT BỘ NÃO REDZ HUB TỪ FILE CỦA BẠN
+-- Chúng ta cần chạy Engine chính trước để các biến có hiệu lực
+task.spawn(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/realredz/BloxFruits/main/Source.lua"))()
+end)
+
+-- 2. GIAO DIỆN LINH HUB (BLUE GLOW)
+local ScreenGui = Instance.new("ScreenGui", LPlayer.PlayerGui)
+ScreenGui.Name = "LinhHub_Vip_Fixed"
+ScreenGui.ResetOnSpawn = false
+
+local Main = Instance.new("Frame", ScreenGui)
+Main.Size = UDim2.new(0, 450, 0, 400)
+Main.Position = UDim2.new(0.5, -225, 0.5, -200)
+Main.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+Main.Active = true
+Main.Draggable = true
+Instance.new("UIStroke", Main).Color = Color3.fromRGB(0, 170, 255)
+Instance.new("UICorner", Main)
+
+local Title = Instance.new("TextLabel", Main)
+Title.Size = UDim2.new(1, 0, 0, 50)
+Title.Text = "LINH HUB x REDZ VIP [FIXED]"
+Title.TextColor3 = Color3.new(1,1,1)
+Title.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+Title.Font = "GothamBold"
+Title.TextSize = 18
+
+local Scroll = Instance.new("ScrollingFrame", Main)
+Scroll.Size = UDim2.new(1, -20, 1, -70)
+Scroll.Position = UDim2.new(0, 10, 0, 60)
+Scroll.BackgroundTransparency = 1
+Scroll.CanvasSize = UDim2.new(0, 0, 2.5, 0)
+
+local List = Instance.new("UIListLayout", Scroll)
+List.Padding = UDim.new(0, 8)
+List.HorizontalAlignment = "Center"
+
+-- HÀM TẠO NÚT
+local function AddToggle(name, desc, callback)
+    local B = Instance.new("TextButton", Scroll)
+    B.Size = UDim2.new(0, 400, 0, 60)
+    B.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    B.Text = name .. "\n" .. desc
+    B.TextColor3 = Color3.new(1,1,1)
+    B.Font = "GothamBold"
+    B.TextSize = 14
+    Instance.new("UICorner", B)
+    
+    local on = false
+    B.MouseButton1Click:Connect(function()
+        on = not on
+        B.BackgroundColor3 = on and Color3.fromRGB(0, 100, 255) or Color3.fromRGB(25, 25, 25)
+        callback(on)
+    end)
+end
+
+-- ==========================================
+-- KẾT NỐI CHỨC NĂNG (100% THEO FILE CỦA BẠN)
+-- ==========================================
+
+-- BẮT BUỘC: CHỌN VŨ KHÍ (Nếu không chọn cái này sẽ đứng im)
+AddToggle("⚔️ CHỌN VŨ KHÍ (MELEE)", "Bật cái này trước khi Farm", function(state)
+    _G.SelectWeapon = state and "Melee" or nil
+    _G.AutoEquip = state
+end)
+
+-- 1. AUTO FARM LEVEL
+AddToggle("🍖 AUTO FARM LEVEL", "Tự nhận Quest + Bay tới quái", function(state)
+    _G.AutoFarmLevel = state
+    _G.StopTween = not state
+end)
+
+-- 2. AUTO FARM XƯƠNG (BONE)
+AddToggle("🦴 AUTO FARM BONE", "Chuyên dụng cho Sea 3", function(state)
+    _G.AutoFarmBone = state
+end)
+
+-- 3. AUTO KATAKURI / CAKE PRINCE
+AddToggle("🎂 AUTO KATAKURI", "Tự mở cổng và diệt Boss", function(state)
+    _G.AutoKatakuri = state
+    _G.AutoCakePrince = state
+end)
+
+-- 4. BẬT TỘC V3 / V4 (Cực dễ - Đã sửa lỗi)
+-- Sử dụng chính xác hàm gạt cần và dùng skill tộc từ Redz Hub
+AddToggle("🧬 AUTO BẬT TỘC V3/V4", "Tự dùng chiêu Tộc khi đầy nộ", function(state)
+    _G.AutoUseRaceV3 = state
+    _G.AutoUseRaceV4 = state
+    -- Fix lỗi đứng im bằng cách kiểm tra nộ liên tục
+    task.spawn(function()
+        while _G.AutoUseRaceV4 do
+            task.wait(0.5)
+            pcall(function()
+                if LPlayer.Character:FindFirstChild("RaceTransformed") == nil then
+                    game:GetService("VirtualInputManager"):SendKeyEvent(true, "T", false, game)
+                end
+            end)
+        end
+    end)
+end)
+
+-- 5. FAST ATTACK & GOM QUÁI
+AddToggle("🚀 SIÊU TỐC ĐỘ ĐÁNH", "Đánh nhanh + Gom quái cực mạnh", function(state)
+    _G.FastAttack = state
+    _G.BringMob = state
+end)
+
+-- Đóng mở Menu
+game:GetService("UserInputService").InputBegan:Connect(function(i, p)
+    if not p and i.KeyCode == Enum.KeyCode.L then Main.Visible = not Main.Visible end
+end)
