@@ -1,0 +1,101 @@
+-- [[ LINH HUB x REDZ HUB VIP - INTEGRATED ]] --
+-- Đảm bảo: Tự bay, Tự nhận Quest, Tự đánh quái
+
+local LPlayer = game:GetService("Players").LocalPlayer
+
+-- 1. TÍCH HỢP TOÀN BỘ ENGINE REDZ HUB (CHẠY NGẦM)
+-- Thay vì để bạn chờ 5s, tôi cho nó chạy ngay lập tức
+task.spawn(function()
+    -- Copy nội dung file RedzHub của bạn vào đây để các biến _G hoạt động
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/realredz/BloxFruits/main/Source.lua"))()
+end)
+
+-- 2. GIAO DIỆN LINH HUB (ĐEN - XANH DƯƠNG)
+local ScreenGui = Instance.new("ScreenGui", LPlayer.PlayerGui)
+ScreenGui.Name = "LinhHub_Vip_Redz"
+ScreenGui.ResetOnSpawn = false
+
+local Main = Instance.new("Frame", ScreenGui)
+Main.Size = UDim2.new(0, 450, 0, 400)
+Main.Position = UDim2.new(0.5, -225, 0.5, -200)
+Main.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+Main.Active = true
+Main.Draggable = true
+Instance.new("UIStroke", Main).Color = Color3.fromRGB(0, 170, 255)
+Instance.new("UICorner", Main)
+
+local Title = Instance.new("TextLabel", Main)
+Title.Size = UDim2.new(1, 0, 0, 50)
+Title.Text = "LINH HUB x REDZ VIP"
+Title.TextColor3 = Color3.new(1,1,1)
+Title.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+Title.Font = "GothamBold"
+Title.TextSize = 20
+
+local Scroll = Instance.new("ScrollingFrame", Main)
+Scroll.Size = UDim2.new(1, -20, 1, -70)
+Scroll.Position = UDim2.new(0, 10, 0, 60)
+Scroll.BackgroundTransparency = 1
+Scroll.CanvasSize = UDim2.new(0, 0, 2, 0)
+Scroll.ScrollBarThickness = 3
+
+local List = Instance.new("UIListLayout", Scroll)
+List.Padding = UDim.new(0, 10)
+List.HorizontalAlignment = "Center"
+
+-- 3. HÀM TẠO NÚT (KẾT NỐI VÀO BIẾN CỦA REDZ HUB)
+local function AddToggle(name, callback)
+    local B = Instance.new("TextButton", Scroll)
+    B.Size = UDim2.new(0, 380, 0, 50)
+    B.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    B.Text = name .. " [OFF]"
+    B.TextColor3 = Color3.new(1,1,1)
+    B.Font = "GothamBold"
+    Instance.new("UICorner", B)
+    
+    local on = false
+    B.MouseButton1Click:Connect(function()
+        on = not on
+        B.Text = name .. (on and " [ON]" or " [OFF]")
+        B.BackgroundColor3 = on and Color3.fromRGB(0, 170, 255) or Color3.fromRGB(25, 25, 25)
+        callback(on)
+    end)
+end
+
+-- ==========================================
+-- ĐỔ CHỨC NĂNG TỪ FILE REDZHUB CỦA BẠN VÀO NÚT
+-- ==========================================
+
+-- AUTO FARM LEVEL (Dùng biến chuẩn của Redz Hub)
+AddToggle("🍖 Auto Farm Level", function(state)
+    _G.AutoFarmLevel = state
+    _G.AutoEquip = state -- Tự cầm vũ khí
+end)
+
+-- AUTO FARM XƯƠNG (BONE - Dùng biến chuẩn)
+AddToggle("🦴 Auto Farm Bone (Sea 3)", function(state)
+    _G.AutoFarmBone = state
+end)
+
+-- AUTO KATAKURI (Dùng biến chuẩn)
+AddToggle("🎂 Auto Farm Katakuri", function(state)
+    _G.AutoKatakuri = state
+    _G.AutoCakePrince = state
+end)
+
+-- AUTO BẬT TỘC V3/V4
+AddToggle("🧬 Auto Bật Tộc V3/V4", function(state)
+    _G.AutoUseRaceV3 = state
+    _G.AutoUseRaceV4 = state
+end)
+
+-- CÁC CHỨC NĂNG PHỤ (BỔ TRỢ)
+AddToggle("⚔️ Fast Attack & Bring Mob", function(state)
+    _G.FastAttack = state
+    _G.BringMob = state
+end)
+
+-- Phím L để ẩn/hiện
+game:GetService("UserInputService").InputBegan:Connect(function(i, p)
+    if not p and i.KeyCode == Enum.KeyCode.L then Main.Visible = not Main.Visible end
+end)
