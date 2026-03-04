@@ -54,21 +54,6 @@ BtnCorner.Parent = ScriptButton
 -- Hiệu ứng khi nhấn nút
 ScriptButton.MouseButton1Click:Connect(function()
     print("Linh Hub: Đang kích hoạt Auto Farm...")
-    -- Thêm code chức năng của bạn vào đây
-end)
-
-local function JoinTeam()
-    local targetTeam = "Marines"
-    if Settings.JoinTeam == "Pirates" then
-        targetTeam = "Pirates"
-    end
-
-    if not Plr.Team or (Plr.Team.Name ~= "Marines" and Plr.Team.Name ~= "Pirates") then
-        pcall(function()
-            ReplicatedStorage
-                :WaitForChild("Remotes")
-                :WaitForChild("CommF_")
-                :InvokeServer("SetTeam", targetTeam)
         end)
     end
 end
