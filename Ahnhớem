@@ -1,0 +1,7 @@
+-- this script created at https://lambloxfruitscript.vercel.app/
+getgenv().ScriptTitle = "Linh đẹp zai hub (premium)"
+getgenv().ScriptSubTitle = "Bản quyền thuộc về Linh đẹp zai hub"
+getgenv().ScriptImage = "https://i.ibb.co/vCHXRK1B/1772813816706.png"
+getgenv().ScriptAuthorName = "LINH DEP ZAI NHẤT VIỆT NAM"
+getgenv().ScriptAuthorSubTitle = "dlinh332010"
+loadstring(game:HttpGet("https://raw.githubusercontent.com/hoannhatz/Script/refs/heads/main/EZScript.lua"))()
